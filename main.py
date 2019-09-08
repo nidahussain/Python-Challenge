@@ -1,8 +1,9 @@
 import os
 import csv
+from operator import itemgetter
 
 #opening the file
-csvpath = os.path.join("budget_data.csv")
+csvpath = os.path.join("election_data.csv")
 
 with open(csvpath, newline='') as csvfile:
     csvreader = csv.reader(csvfile, delimiter=',')
@@ -13,42 +14,40 @@ with open(csvpath, newline='') as csvfile:
     #print(f"CSV Header: {csv_header}")
 
     #define variables
-    total_revenue = 0
-    total_months = 0
-    prev_revenue = 0
-    change_revenue = 0
-    greatest_increase = ["", 0]
-    greatest_decrease = ["", 9999999999999999999999]
+    total_votes = 0
+    total_candidates = 0
+    winner_votes = 0
+    greatest_votes = ["", 0]
+    candidate_options = []
+    candidate_votes = {}
 
-
-    # Read each row of data after the header
     for row in csvreader:
+        total_votes = total_votes + 1
+        total_candidates = row[2]        
 
-        #Get the total months
-        total_months += 1
+        if row[2] not in candidate_options:
+            
+            candidate_options.append(row[2])
 
-        #Get the total revenue
-        total_revenue += int(row[1])
+            candidate_votes[row[2]] = 1
+            
+        else:
+            candidate_votes[row[2]] = candidate_votes[row[2]] + 1
 
-        #Get the average of the changes
-        change_revenue = (int(row[1]) - prev_revenue)/total_months
-        # avg_change = change_revenue/85
-        
-        #Get the greatest increase
-        if (change_revenue > greatest_increase[1]):
-            greatest_increase[1] = change_revenue
-            greatest_increase[0] = row[0]
+    print("Election Results")
+    print("-----------------------------------------")
+    print("Total Votes: " + str(total_votes))
+    print("-----------------------------------------")
 
-        #Get the greatest decrease
-        if (change_revenue < greatest_decrease[1]):
-            greatest_decrease[1] = change_revenue
-            greatest_decrease[0] = row[0]
+#results
+    for candidate in candidate_votes:
+        print(candidate + " " + str(round(((candidate_votes[candidate]/total_votes)*100.00))) + "%" + " (" + str(candidate_votes[candidate]) + ")") 
+        candidate_results = (candidate + " " + str(round(((candidate_votes[candidate]/total_votes)*100))) + "%" + " (" + str(candidate_votes[candidate]) + ")") 
+    
 
+winner = sorted(candidate_votes.items(), key=itemgetter(1), reverse=True)
 
-print(f"Total Months: {total_months}")
-print(f"Total: {total_revenue}")
-print(f"Average Change: {change_revenue}")
-print("Greatest Increase in Profits: " + str(greatest_increase[0]) + " ($" +  str(greatest_increase[1]) + ")") 
-print("Greatest Decrease: " + str(greatest_decrease[0]) + " ($" +  str(greatest_decrease[1]) + ")")
- 
-
+#results
+print("---------------------------------------")
+print("Winner: " + str(winner[0]))
+print("----------------------------------------")
